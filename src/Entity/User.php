@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -51,6 +53,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(nullable: true)]
     private ?int $telephone = null;
+
+    #[ORM\OneToMany(mappedBy: 'ajouterPar', targetEntity: OffreStage::class)]
+    private Collection $offreStages;
+
+    public function __construct()
+    {
+        $this->offreStages = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -214,6 +224,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setTelephone(?int $telephone): self
     {
         $this->telephone = $telephone;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, OffreStage>
+     */
+    public function getOffreStages(): Collection
+    {
+        return $this->offreStages;
+    }
+
+    public function addOffreStage(OffreStage $offreStage): self
+    {
+        if (!$this->offreStages->contains($offreStage)) {
+            $this->offreStages->add($offreStage);
+            $offreStage->setAjouterPar($this);
+        }
+
+        return $this;
+    }
+
+    public function removeOffreStage(OffreStage $offreStage): self
+    {
+        if ($this->offreStages->removeElement($offreStage)) {
+            // set the owning side to null (unless already changed)
+            if ($offreStage->getAjouterPar() === $this) {
+                $offreStage->setAjouterPar(null);
+            }
+        }
 
         return $this;
     }
