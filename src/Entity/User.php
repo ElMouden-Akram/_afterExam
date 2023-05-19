@@ -2,23 +2,45 @@
 
 namespace App\Entity;
 
-use App\Repository\UserRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Post;
+
+
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use App\Repository\UserRepository;
+use ApiPlatform\Metadata\ApiResource;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
+#[ApiResource(
+    //👇regle apliquer a tout les oprerations (default):
+    normalizationContext: ['groups' => ['User:ThisClass']],
+    denormalizationContext: ['groups' => ['User:ThisClass']],
+
+    operations:[
+        new Get(
+            normalizationContext: ['groups' => ['User:ThisClass','User:relation']],
+        ),
+        new Post(
+            // denormalizationContext: ['groups' => ['User:ThisClass']],
+        )
+    ],
+)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['User:ThisClass'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 30, unique: true)]
+    #[Groups(['User:ThisClass'])]
     private ?string $username = null;
 
     #[ORM\Column]
@@ -28,33 +50,43 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @var string The hashed password
      */
     #[ORM\Column]
+    #[Groups(['User:ThisClass'])]
     private ?string $password = null;
 
     #[ORM\Column(length: 40)]
+    #[Groups(['User:ThisClass'])]
     private ?string $firstName = null;
 
     #[ORM\Column(length: 40)]
+    #[Groups(['User:ThisClass'])]
     private ?string $lastName = null;
 
     #[ORM\Column(length: 15, nullable: true)]
+    #[Groups(['User:ThisClass'])]
     private ?string $CNI = null;
 
     #[ORM\Column(length: 20, nullable: true)]
+    #[Groups(['User:ThisClass'])]
     private ?string $CNE = null;
 
     #[ORM\Column]
+    #[Groups(['User:ThisClass'])]
     private ?bool $sexe = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
+    #[Groups(['User:ThisClass'])]
     private ?\DateTimeInterface $dateNaissance = null;
 
     #[ORM\Column(length: 60, nullable: true)]
+    #[Groups(['User:ThisClass'])]
     private ?string $adresse = null;
 
     #[ORM\Column(nullable: true)]
+    #[Groups(['User:ThisClass'])]
     private ?int $telephone = null;
 
     #[ORM\OneToMany(mappedBy: 'ajouterPar', targetEntity: OffreStage::class)]
+    #[Groups(['User:ThisClass','User:relation'])]
     private Collection $offreStages;
 
     public function __construct()
