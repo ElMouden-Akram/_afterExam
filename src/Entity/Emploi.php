@@ -2,6 +2,9 @@
 
 namespace App\Entity;
 
+use App\Entity\Relation\UserEmploi;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\EmploiRepository;
@@ -25,6 +28,18 @@ class Emploi
     #[ORM\ManyToOne(inversedBy: 'emplois')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Entreprise $fkEntreprise = null;
+
+    #[ORM\OneToMany(mappedBy: 'fkEmploi', targetEntity: UserEmploi::class, orphanRemoval: true)]
+    private Collection $userEmplois;
+
+    #[ORM\OneToMany(mappedBy: 'emploi', targetEntity: OffreEmploi::class, orphanRemoval: true)]
+    private Collection $offreEmplois;
+
+    public function __construct()
+    {
+        $this->userEmplois = new ArrayCollection();
+        $this->offreEmplois = new ArrayCollection();
+    }
     
     public function getId(): ?int
     {
@@ -63,6 +78,66 @@ class Emploi
     public function setFkEntreprise(?Entreprise $fkEntreprise): self
     {
         $this->fkEntreprise = $fkEntreprise;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, UserEmploi>
+     */
+    public function getUserEmplois(): Collection
+    {
+        return $this->userEmplois;
+    }
+
+    public function addUserEmploi(UserEmploi $userEmploi): self
+    {
+        if (!$this->userEmplois->contains($userEmploi)) {
+            $this->userEmplois->add($userEmploi);
+            $userEmploi->setFkEmploi($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUserEmploi(UserEmploi $userEmploi): self
+    {
+        if ($this->userEmplois->removeElement($userEmploi)) {
+            // set the owning side to null (unless already changed)
+            if ($userEmploi->getFkEmploi() === $this) {
+                $userEmploi->setFkEmploi(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, OffreEmploi>
+     */
+    public function getOffreEmplois(): Collection
+    {
+        return $this->offreEmplois;
+    }
+
+    public function addOffreEmploi(OffreEmploi $offreEmploi): self
+    {
+        if (!$this->offreEmplois->contains($offreEmploi)) {
+            $this->offreEmplois->add($offreEmploi);
+            $offreEmploi->setEmploi($this);
+        }
+
+        return $this;
+    }
+
+    public function removeOffreEmploi(OffreEmploi $offreEmploi): self
+    {
+        if ($this->offreEmplois->removeElement($offreEmploi)) {
+            // set the owning side to null (unless already changed)
+            if ($offreEmploi->getEmploi() === $this) {
+                $offreEmploi->setEmploi(null);
+            }
+        }
 
         return $this;
     }

@@ -5,6 +5,7 @@ namespace App\Entity;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
 use App\Entity\Relation\UserCycleEtude;
+use App\Entity\Relation\UserEmploi;
 
 
 use Doctrine\DBAL\Types\Types;
@@ -20,15 +21,16 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ApiResource(
     //👇regle apliquer a tout les oprerations (default):
-    normalizationContext: ['groups' => ['User:ThisClass']],
+    normalizationContext: ['groups' => ['User:ThisClass','User:relation:ToRead']],
     denormalizationContext: ['groups' => ['User:ThisClass']],
 
     operations:[
         new Get(
-            normalizationContext: ['groups' => ['User:ThisClass','User:relation:get','CycleEtude:ThisClass','OffreStage:ThisClass']],
+            normalizationContext: ['groups' => ['User:ThisClass','User:relation:ToRead','CycleEtude:ThisClass','OffreStage:ThisClass']],
         ),
         new Post(
-            // denormalizationContext: ['groups' => ['User:ThisClass']],
+            normalizationContext: ['groups' => []],// je veux que sa me retourne rien apres ecriture(denorma...) dans database , sauf stage requette (ajouter plus tard)
+            denormalizationContext: ['groups' => ['User:ThisClass']],
         )
     ],
 )]
@@ -89,17 +91,30 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 // 🚧 attribut bellow for 'relation' 🚧
 
     #[ORM\OneToMany(mappedBy: 'ajouterPar', targetEntity: OffreStage::class)]
-    #[Groups(['User:ThisClass'])]
+    #[Groups(['User:relation:ToRead'])]
     private Collection $offreStages;
 
     #[ORM\OneToMany(mappedBy: 'fkUser', targetEntity: UserCycleEtude::class)]
-    #[Groups(['User:ThisClass'])]
+    #[Groups(['User:relation:ToRead'])]
     private Collection $userCycleEtudes;
+
+    #[Groups(['User:relation:ToRead'])]
+    #[ORM\OneToMany(mappedBy: 'fkUser', targetEntity: UserEmploi::class, orphanRemoval: true)]
+    private Collection $userEmplois;
+
+    #[ORM\OneToMany(mappedBy: 'ajouterPar', targetEntity: OffreEmploi::class)]
+    private Collection $offreEmplois;
+
+    #[ORM\OneToMany(mappedBy: 'ajouterPar', targetEntity: Formation::class, orphanRemoval: true)]
+    private Collection $formations;
 
     public function __construct()
     {
         $this->offreStages = new ArrayCollection();
         $this->userCycleEtudes = new ArrayCollection();
+        $this->userEmplois = new ArrayCollection();
+        $this->offreEmplois = new ArrayCollection();
+        $this->formations = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -322,6 +337,96 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($userCycleEtude->getFkUser() === $this) {
                 $userCycleEtude->setFkUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, UserEmploi>
+     */
+    public function getUserEmplois(): Collection
+    {
+        return $this->userEmplois;
+    }
+
+    public function addUserEmploi(UserEmploi $userEmploi): self
+    {
+        if (!$this->userEmplois->contains($userEmploi)) {
+            $this->userEmplois->add($userEmploi);
+            $userEmploi->setFkUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUserEmploi(UserEmploi $userEmploi): self
+    {
+        if ($this->userEmplois->removeElement($userEmploi)) {
+            // set the owning side to null (unless already changed)
+            if ($userEmploi->getFkUser() === $this) {
+                $userEmploi->setFkUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, OffreEmploi>
+     */
+    public function getOffreEmplois(): Collection
+    {
+        return $this->offreEmplois;
+    }
+
+    public function addOffreEmploi(OffreEmploi $offreEmploi): self
+    {
+        if (!$this->offreEmplois->contains($offreEmploi)) {
+            $this->offreEmplois->add($offreEmploi);
+            $offreEmploi->setAjouterPar($this);
+        }
+
+        return $this;
+    }
+
+    public function removeOffreEmploi(OffreEmploi $offreEmploi): self
+    {
+        if ($this->offreEmplois->removeElement($offreEmploi)) {
+            // set the owning side to null (unless already changed)
+            if ($offreEmploi->getAjouterPar() === $this) {
+                $offreEmploi->setAjouterPar(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Formation>
+     */
+    public function getFormations(): Collection
+    {
+        return $this->formations;
+    }
+
+    public function addFormation(Formation $formation): self
+    {
+        if (!$this->formations->contains($formation)) {
+            $this->formations->add($formation);
+            $formation->setAjouterPar($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFormation(Formation $formation): self
+    {
+        if ($this->formations->removeElement($formation)) {
+            // set the owning side to null (unless already changed)
+            if ($formation->getAjouterPar() === $this) {
+                $formation->setAjouterPar(null);
             }
         }
 

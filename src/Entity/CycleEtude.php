@@ -57,11 +57,15 @@ class CycleEtude
     #[ORM\OneToMany(mappedBy: 'fkCycleEtude', targetEntity: UserCycleEtude::class)]
     private Collection $userCycleEtudes;
 
+    #[ORM\OneToMany(mappedBy: 'cycleEtude', targetEntity: Formation::class)]
+    private Collection $formations;
+
     public function __construct()
     {
         //valeur par default :
         $this->Valider=false;
         $this->userCycleEtudes = new ArrayCollection();
+        $this->formations = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -153,6 +157,36 @@ class CycleEtude
             // set the owning side to null (unless already changed)
             if ($userCycleEtude->getFkCycleEtude() === $this) {
                 $userCycleEtude->setFkCycleEtude(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Formation>
+     */
+    public function getFormations(): Collection
+    {
+        return $this->formations;
+    }
+
+    public function addFormation(Formation $formation): self
+    {
+        if (!$this->formations->contains($formation)) {
+            $this->formations->add($formation);
+            $formation->setCycleEtude($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFormation(Formation $formation): self
+    {
+        if ($this->formations->removeElement($formation)) {
+            // set the owning side to null (unless already changed)
+            if ($formation->getCycleEtude() === $this) {
+                $formation->setCycleEtude(null);
             }
         }
 
