@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
+use App\Entity\Relation\UserCycleEtude;
 
 
 use Doctrine\DBAL\Types\Types;
@@ -24,7 +25,7 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
     operations:[
         new Get(
-            normalizationContext: ['groups' => ['User:ThisClass','User:relation']],
+            normalizationContext: ['groups' => ['User:ThisClass','User:relation:get','CycleEtude:ThisClass','OffreStage:ThisClass']],
         ),
         new Post(
             // denormalizationContext: ['groups' => ['User:ThisClass']],
@@ -85,13 +86,20 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['User:ThisClass'])]
     private ?int $telephone = null;
 
+// 🚧 attribut bellow for 'relation' 🚧
+
     #[ORM\OneToMany(mappedBy: 'ajouterPar', targetEntity: OffreStage::class)]
-    #[Groups(['User:ThisClass','User:relation'])]
+    #[Groups(['User:ThisClass'])]
     private Collection $offreStages;
+
+    #[ORM\OneToMany(mappedBy: 'fkUser', targetEntity: UserCycleEtude::class)]
+    #[Groups(['User:ThisClass'])]
+    private Collection $userCycleEtudes;
 
     public function __construct()
     {
         $this->offreStages = new ArrayCollection();
+        $this->userCycleEtudes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -284,6 +292,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($offreStage->getAjouterPar() === $this) {
                 $offreStage->setAjouterPar(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, UserCycleEtude>
+     */
+    public function getUserCycleEtudes(): Collection
+    {
+        return $this->userCycleEtudes;
+    }
+
+    public function addUserCycleEtude(UserCycleEtude $userCycleEtude): self
+    {
+        if (!$this->userCycleEtudes->contains($userCycleEtude)) {
+            $this->userCycleEtudes->add($userCycleEtude);
+            $userCycleEtude->setFkUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUserCycleEtude(UserCycleEtude $userCycleEtude): self
+    {
+        if ($this->userCycleEtudes->removeElement($userCycleEtude)) {
+            // set the owning side to null (unless already changed)
+            if ($userCycleEtude->getFkUser() === $this) {
+                $userCycleEtude->setFkUser(null);
             }
         }
 

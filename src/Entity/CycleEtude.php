@@ -4,6 +4,9 @@ namespace App\Entity;
 
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
+use App\Entity\Relation\UserCycleEtude;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
 use App\Repository\CycleEtudeRepository;
@@ -51,10 +54,14 @@ class CycleEtude
     // #[Groups(['CycleEtude:ThisClass'])] //🔥par default sera false par constructeur
     private ?bool $Valider = null;
 
+    #[ORM\OneToMany(mappedBy: 'fkCycleEtude', targetEntity: UserCycleEtude::class)]
+    private Collection $userCycleEtudes;
+
     public function __construct()
     {
         //valeur par default :
         $this->Valider=false;
+        $this->userCycleEtudes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -118,6 +125,36 @@ class CycleEtude
     public function setValider(bool $Valider): self
     {
         $this->Valider = $Valider;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, UserCycleEtude>
+     */
+    public function getUserCycleEtudes(): Collection
+    {
+        return $this->userCycleEtudes;
+    }
+
+    public function addUserCycleEtude(UserCycleEtude $userCycleEtude): self
+    {
+        if (!$this->userCycleEtudes->contains($userCycleEtude)) {
+            $this->userCycleEtudes->add($userCycleEtude);
+            $userCycleEtude->setFkCycleEtude($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUserCycleEtude(UserCycleEtude $userCycleEtude): self
+    {
+        if ($this->userCycleEtudes->removeElement($userCycleEtude)) {
+            // set the owning side to null (unless already changed)
+            if ($userCycleEtude->getFkCycleEtude() === $this) {
+                $userCycleEtude->setFkCycleEtude(null);
+            }
+        }
 
         return $this;
     }
