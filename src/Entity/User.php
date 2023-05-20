@@ -2,36 +2,48 @@
 
 namespace App\Entity;
 
+use Assert\NotBlank;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
-use App\Entity\Relation\UserCycleEtude;
-use App\Entity\Relation\UserEmploi;
-
-
 use Doctrine\DBAL\Types\Types;
+
+
+use App\Controller\MeController;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\UserRepository;
+use App\Entity\Relation\UserEmploi;
 use ApiPlatform\Metadata\ApiResource;
+use App\Entity\Relation\UserCycleEtude;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ApiResource(
     //👇regle apliquer a tout les oprerations (default):
-    normalizationContext: ['groups' => ['User:ThisClass','User:relation:ToRead']],
-    denormalizationContext: ['groups' => ['User:ThisClass']],
+    normalizationContext: ['groups' => ['User:GET','User:relation:ToRead']],
+    denormalizationContext: ['groups' => ['User:POST']],
 
     operations:[
         new Get(
-            normalizationContext: ['groups' => ['User:ThisClass','User:relation:ToRead','CycleEtude:ThisClass','OffreStage:ThisClass']],
+            normalizationContext: ['groups' => ['User:GET','User:relation:ToRead','CycleEtude:ThisClass','OffreStage:ThisClass']],
         ),
         new Post(
             normalizationContext: ['groups' => []],// je veux que sa me retourne rien apres ecriture(denorma...) dans database , sauf stage requette (ajouter plus tard)
-            denormalizationContext: ['groups' => ['User:ThisClass']],
-        )
+            denormalizationContext: ['groups' => ['User:POST']],
+        ),
+        //👇 pour ajouter "/api/me" :
+        new Get(name: 'me',
+                paginationEnabled:false,  //pour ne nous demonde pas "cb de page tu veux ..."
+                uriTemplate: '/me',
+                controller: MeController::class,
+                read:false,
+                normalizationContext:['groups'=>['user:read']],
+//                security: "is_granted('ROLE_ETUDIANT')"
+            ),
     ],
 )]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
@@ -39,11 +51,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['User:ThisClass'])]
+    #[Groups(['User:GET'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 30, unique: true)]
-    #[Groups(['User:ThisClass'])]
+    #[Groups(['User:POST'])]
     private ?string $username = null;
 
     #[ORM\Column]
@@ -53,46 +65,53 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @var string The hashed password
      */
     #[ORM\Column]
-    #[Groups(['User:ThisClass'])]
+    #[Groups(['User:POST'])]
     private ?string $password = null;
 
     #[ORM\Column(length: 40)]
-    #[Groups(['User:ThisClass','OffreStage:ThisClass'])]
+    #[Groups(['User:GET','User:POST','OffreStage:ThisClass'])]
     private ?string $firstName = null;
 
     #[ORM\Column(length: 40)]
-    #[Groups(['User:ThisClass','OffreStage:ThisClass'])]
+    #[Groups(['User:GET','User:POST','OffreStage:ThisClass'])]
     private ?string $lastName = null;
 
     #[ORM\Column(length: 15, nullable: true)]
-    #[Groups(['User:ThisClass'])]
+    #[Groups(['User:GET','User:POST'])]
     private ?string $CNI = null;
 
     #[ORM\Column(length: 20, nullable: true)]
-    #[Groups(['User:ThisClass'])]
+    #[Groups(['User:GET','User:POST'])]
     private ?string $CNE = null;
 
-    #[ORM\Column]
-    #[Groups(['User:ThisClass'])]
-    private ?bool $sexe = null;
+    #[ORM\Column(length: 6, nullable: true)]
+    #[Assert\Choice(choices :['homme','femme'],message:'Please select your sexe : \'homme\' or \'femme\'.')]
+    #[Groups(['User:GET','User:POST'])]
+    private ?string $sexe = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
-    #[Groups(['User:ThisClass'])]
+    #[Groups(['User:GET','User:POST'])]
     private ?\DateTimeInterface $dateNaissance = null;
 
     #[ORM\Column(length: 60, nullable: true)]
-    #[Groups(['User:ThisClass'])]
+    #[Groups(['User:GET','User:POST'])]
     private ?string $adresse = null;
 
-    #[ORM\Column(nullable: true)]
-    #[Groups(['User:ThisClass'])]
-    private ?int $telephone = null;
+    #[ORM\Column(length: 10,nullable: true)]
+    #[Groups(['User:GET','User:POST'])]
+    private ?string $telephone = null;
 
 // 🚧 attribut bellow for 'relation' 🚧
 
     #[ORM\OneToMany(mappedBy: 'ajouterPar', targetEntity: OffreStage::class)]
-    #[Groups(['User:relation:ToRead'])]
+    #[Groups(['User:relation:GET'])]
     private Collection $offreStages;
+    
+    #[ORM\OneToMany(mappedBy: 'ajouterPar', targetEntity: OffreEmploi::class)]
+    private Collection $offreEmplois;
+    
+    #[ORM\OneToMany(mappedBy: 'ajouterPar', targetEntity: Formation::class, orphanRemoval: true)]
+    private Collection $formations;
 
     #[ORM\OneToMany(mappedBy: 'fkUser', targetEntity: UserCycleEtude::class)]
     #[Groups(['User:relation:ToRead'])]
@@ -102,11 +121,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'fkUser', targetEntity: UserEmploi::class, orphanRemoval: true)]
     private Collection $userEmplois;
 
-    #[ORM\OneToMany(mappedBy: 'ajouterPar', targetEntity: OffreEmploi::class)]
-    private Collection $offreEmplois;
-
-    #[ORM\OneToMany(mappedBy: 'ajouterPar', targetEntity: Formation::class, orphanRemoval: true)]
-    private Collection $formations;
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $picture = null;
 
     public function __construct()
     {
@@ -151,7 +167,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $roles = $this->roles;
         // guarantee every user at least has ROLE_USER
-        $roles[] = 'ROLE_USER';
+        $roles[] = 'ROLE_ETUDIANT';
 
         return array_unique($roles);
     }
@@ -235,12 +251,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function isSexe(): ?bool
+    public function getSexe(): ?string
     {
         return $this->sexe;
     }
 
-    public function setSexe(bool $sexe): self
+    public function setSexe(string $sexe): self
     {
         $this->sexe = $sexe;
 
@@ -271,12 +287,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getTelephone(): ?int
+    public function getTelephone(): ?string
     {
         return $this->telephone;
     }
 
-    public function setTelephone(?int $telephone): self
+    public function setTelephone(?string $telephone): self
     {
         $this->telephone = $telephone;
 
@@ -429,6 +445,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $formation->setAjouterPar(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getPicture(): ?string
+    {
+        return $this->picture;
+    }
+
+    public function setPicture(?string $picture): self
+    {
+        $this->picture = $picture;
 
         return $this;
     }
