@@ -44,7 +44,7 @@ use Symfony\Component\Serializer\Annotation\SerializedName;
                 uriTemplate: '/me',
                 controller: MeController::class,
                 read:false,
-                normalizationContext:['groups'=>['user:read']],
+                normalizationContext:['groups'=>['User:GET']],
 //                security: "is_granted('ROLE_ETUDIANT')"
             ),
     ],

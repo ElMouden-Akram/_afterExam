@@ -21,8 +21,8 @@ class SecurityController extends AbstractController
         }
         
         return $this->json([
-            'user' =>'/api/users/'.$user->getId(),401
-        ]);
+            'user' =>'/api/users/'.$user->getId()
+        ],status:401);
         //🧰for test purpose : header session is like this : cookie  → PHPSESSID=mtdllsu3jom9sflug33a0015o0
     }
 
