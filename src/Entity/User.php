@@ -14,12 +14,14 @@ use App\Repository\UserRepository;
 use App\Entity\Relation\UserEmploi;
 use ApiPlatform\Metadata\ApiResource;
 use App\Entity\Relation\UserCycleEtude;
+use App\State\UserHashPasswordProcessor;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Serializer\Annotation\SerializedName;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ApiResource(
@@ -34,6 +36,7 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
         new Post(
             normalizationContext: ['groups' => []],// je veux que sa me retourne rien apres ecriture(denorma...) dans database , sauf stage requette (ajouter plus tard)
             denormalizationContext: ['groups' => ['User:POST']],
+            
         ),
         //👇 pour ajouter "/api/me" :
         new Get(name: 'me',
@@ -65,8 +68,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @var string The hashed password
      */
     #[ORM\Column]
-    #[Groups(['User:POST'])]
     private ?string $password = null;
+
+    #[Groups(['User:POST'])]
+    #[SerializedName('password')]
+    private ?string $plainPassword = null;
 
     #[ORM\Column(length: 40)]
     #[Groups(['User:GET','User:POST','OffreStage:ThisClass'])]
@@ -459,5 +465,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->picture = $picture;
 
         return $this;
+    }
+
+    public function setPlainPassword(string $plainPassword):User
+    {
+        $this->plainPassword = $plainPassword;
+        return $this;
+    }
+
+    public function getPlainPassword():?string
+    {
+        return $this->plainPassword;
     }
 }
