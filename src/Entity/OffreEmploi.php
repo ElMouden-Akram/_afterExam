@@ -12,6 +12,9 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
 use App\Repository\OffreEmploiRepository;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+
 
 #[ORM\Entity(repositoryClass: OffreEmploiRepository::class)]
 #[ApiResource(
@@ -22,12 +25,14 @@ use Symfony\Component\Serializer\Annotation\Groups;
         new Post(),
         new GetCollection(),
         new Patch(),
-        new Delete(),
-        
-        
+        new Delete(), 
     ],
     
 )]
+//👇verifier si emploi->type ='emploi' :
+#[Assert\Expression('this.emploiType() == "emploi"',message: 'Cette emploi a un attribut type <> "emploi" !')]
+//👇
+#[UniqueEntity(fields:["ajouterPar","emploi"], message:"Vous avez deja saisi un post sur cette article.")]
 class OffreEmploi
 {
     #[ORM\Id]
@@ -60,6 +65,11 @@ class OffreEmploi
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(['OffreEmploi:POST','OffreEmploi:GET'])]
     private ?Emploi $emploi = null;
+
+    public function __construct()
+    {
+        $this->dateAjout = new \DateTimeImmutable();
+    }
 
     public function getId(): ?int
     {
@@ -124,5 +134,10 @@ class OffreEmploi
         $this->emploi = $emploi;
 
         return $this;
+    }
+
+    public function emploiType():string
+    {
+        return $this->emploi->getType();
     }
 }

@@ -8,28 +8,41 @@ use App\Entity\User;
 use App\Repository\Relation\UserEmploiRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserEmploiRepository::class)]
-#[ApiResource()]
+#[ApiResource(
+    normalizationContext: ['groups' => ['UserEmploi:GET']],
+    denormalizationContext: ['groups' => ['UserEmploi:POST']],
+)]
+//🔥🔥🔥🔥🔥🔥🔥🔥Controll de saisi
+#[Assert\Expression('this.FkEmploiType() == "emploi"',message: 'Cette emploi a attribut type <> "emploi" !')]
 class UserEmploi
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    
+    #[Groups(['UserEmploi:GET'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'userEmplois')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['UserEmploi:POST','UserEmploi:GET'])]
     private ?User $fkUser = null;
 
     #[ORM\ManyToOne(inversedBy: 'userEmplois')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['UserEmploi:POST','UserEmploi:GET'])]
     private ?Emploi $fkEmploi = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[Groups(['UserEmploi:POST','UserEmploi:GET'])]
     private ?\DateTimeInterface $dateDebut = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
+    #[Groups(['UserEmploi:POST','UserEmploi:GET'])]
     private ?\DateTimeInterface $dateFin = null;
 
     public function getId(): ?int
@@ -47,6 +60,10 @@ class UserEmploi
         $this->fkUser = $fkUser;
 
         return $this;
+    }
+
+    public function FkEmploiType():string{
+        return $this->fkEmploi->getType();
     }
 
     public function getFkEmploi(): ?Emploi

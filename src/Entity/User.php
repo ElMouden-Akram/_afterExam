@@ -2,7 +2,6 @@
 
 namespace App\Entity;
 
-use Assert\NotBlank;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
 use Doctrine\DBAL\Types\Types;
@@ -13,8 +12,8 @@ use Doctrine\ORM\Mapping as ORM;
 use App\Repository\UserRepository;
 use App\Entity\Relation\UserEmploi;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\GetCollection;
 use App\Entity\Relation\UserCycleEtude;
-use App\State\UserHashPasswordProcessor;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -47,6 +46,7 @@ use Symfony\Component\Serializer\Annotation\SerializedName;
                 normalizationContext:['groups'=>['User:GET']],
 //                security: "is_granted('ROLE_ETUDIANT')"
             ),
+        new GetCollection(),
     ],
 )]
 class User implements UserInterface, PasswordAuthenticatedUserInterface

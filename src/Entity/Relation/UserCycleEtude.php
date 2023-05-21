@@ -11,27 +11,34 @@ use App\Repository\Relation\UserCycleEtudeRepository;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: UserCycleEtudeRepository::class)]
-#[ApiResource]
+#[ApiResource(
+    normalizationContext: ['groups' => ['UserCycleEtude:GET']],
+    denormalizationContext: ['groups' => ['UserCycleEtude:POST']],
+)]
 class UserCycleEtude
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['UserCycleEtude:GET'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'userCycleEtudes')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['UserCycleEtude:GET','UserCycleEtude:POST'])]
     private ?User $fkUser = null;
 
     #[ORM\ManyToOne(inversedBy: 'userCycleEtudes')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups('User:relation:get')]
+    #[Groups(['UserCycleEtude:GET','UserCycleEtude:POST','User:relation:get'])]
     private ?CycleEtude $fkCycleEtude = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[Groups(['UserCycleEtude:GET','UserCycleEtude:POST'])]
     private ?\DateTimeInterface $dateDebut = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
+    #[Groups(['UserCycleEtude:GET','UserCycleEtude:POST'])]
     private ?\DateTimeInterface $dateFin = null;
 
     public function getId(): ?int

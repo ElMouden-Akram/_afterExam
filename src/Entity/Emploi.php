@@ -15,6 +15,8 @@ use ApiPlatform\Metadata\GetCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
+
 
 #[ORM\Entity(repositoryClass: EmploiRepository::class)]
 #[ApiResource(
@@ -48,6 +50,11 @@ class Emploi
     #[ORM\Column(type: Types::TEXT)]
     #[Groups(['Emploi:GET','Emploi:POST'])]
     private ?string $descriptif = null;
+    
+    #[ORM\Column(length: 7)]
+    #[Assert\Choice(choices :['stage','emploi'],message:'Please select your type : \'stage\' or \'emploi\'.')]
+    #[Groups(['Emploi:GET','Emploi:POST'])]
+    private ?string $type = null;
 
     //🚧 Relation :
 
@@ -63,6 +70,7 @@ class Emploi
     #[ORM\OneToMany(mappedBy: 'emploi', targetEntity: OffreEmploi::class, orphanRemoval: true)]
     #[Groups(['Emploi:GETDETAIL'])]
     private Collection $offreEmplois;
+
 
     public function __construct()
     {
@@ -167,6 +175,18 @@ class Emploi
                 $offreEmploi->setEmploi(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    public function setType(string $type): self
+    {
+        $this->type = $type;
 
         return $this;
     }
