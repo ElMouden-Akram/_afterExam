@@ -2,37 +2,61 @@
 
 namespace App\Entity;
 
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Post;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\GetCollection;
 use App\Repository\EtablissmentRepository;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: EtablissmentRepository::class)]
-#[ApiResource]
+#[ApiResource(
+    normalizationContext: ['groups' => ['Etablissement:GET']],
+    denormalizationContext: ['groups' => ['Etablissement:POST']],
+    operations:[
+        new Get(),
+        new Get(
+            uriTemplate: '/etablissmentsDetail/{id}',
+            normalizationContext:['groups'=>['Etablissement:GETDETAIL']],
+        ),
+        new GetCollection(),
+        new Post(),
+    ]
+)]
 class Etablissment
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['Etablissement:GET','Etablissement:GETDETAIL'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 50)]
+    #[Groups(['Etablissement:POST','Etablissement:GET','Etablissement:GETDETAIL'])]
     private ?string $nomEtablissement = null;
 
     #[ORM\Column(length: 50, nullable: true)]
+    #[Groups(['Etablissement:POST','Etablissement:GET','Etablissement:GETDETAIL'])]
     private ?string $nomUniversite = null;
 
     #[ORM\Column(length: 20)]
+    #[Groups(['Etablissement:POST','Etablissement:GET','Etablissement:GETDETAIL'])]
     private ?string $region = null;
 
     #[ORM\Column(length: 50)]
+    #[Groups(['Etablissement:POST','Etablissement:GET','Etablissement:GETDETAIL'])]
     private ?string $ville = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['Etablissement:POST','Etablissement:GET','Etablissement:GETDETAIL'])]
     private ?string $logoUniversite = null;
 
     #[ORM\OneToMany(mappedBy: 'fkEtablissement', targetEntity: CycleEtude::class)]
+    #[Groups(['Etablissement:GETDETAIL'])]
+
     private Collection $cycleEtudes;
 
     public function __construct()

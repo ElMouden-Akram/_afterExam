@@ -4,22 +4,29 @@ namespace App\Entity;
 
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\GetCollection;
-
 use Doctrine\DBAL\Types\Types;
+
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Delete;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\GetCollection;
 use App\Repository\OffreStageRepository;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: OffreStageRepository::class)]
 #[ApiResource(
-    normalizationContext: ['groups' => ['OffreStage:ThisClass','OffreStage:DateAjout']],
-    denormalizationContext:['groups' => ['OffreStage:ThisClass']],
+    normalizationContext: ['groups' => ['OffreStage:GET']],
+    denormalizationContext:['groups' => ['OffreStage:POST']],
     operations:[
-        new Get(),
+        new Get(
+            normalizationContext: ['groups' => ['OffreStage:GET']],
+            denormalizationContext:['groups' => ['OffreStage:POST']],
+        ),
         new Post(),
         new GetCollection(),
+        new Patch(),
+        new Delete(),
         
         
     ],
@@ -30,29 +37,32 @@ class OffreStage
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['OffreStage:ThisClass'])]
+    #[Groups(['OffreStage:GET'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 30)]
-    #[Groups(['OffreStage:ThisClass'])]
+    #[Groups(['OffreStage:GET','OffreStage:POST'])]
     private ?string $titre = null;
 
     #[ORM\Column(type: Types::TEXT)]
-    #[Groups(['OffreStage:ThisClass'])]
+    #[Groups(['OffreStage:GET','OffreStage:POST'])]
     private ?string $description = null;
 
-    #[ORM\ManyToOne(inversedBy: 'offreStages')]
-    #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['OffreStage:ThisClass'])]
-    private ?User $ajouterPar = null;
-
     #[ORM\Column(type: Types::DATE_MUTABLE)]
-    #[Groups(['OffreStage:DateAjout'])]
+    #[Groups(['OffreStage:GET'])]  // remarque : cette attribut est initialiser au constructeur a la creation de l'object!
     private ?\DateTimeInterface $dateAjout = null;
+    
+    //🚧 Relation :
+
+    #[ORM\ManyToOne(inversedBy: 'offreStages')]
+    #[ORM\JoinColumn(nullable: false)]    
+    #[Groups(['OffreStage:GET','OffreStage:POST'])]
+    private ?User $ajouterPar = null;
+    
 
     #[ORM\ManyToOne(inversedBy: 'offreStages')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['OffreStage:ThisClass'])]
+    #[Groups(['OffreStage:GET','OffreStage:POST'])]
     private ?Entreprise $entreprise = null;
 
     public function __construct()

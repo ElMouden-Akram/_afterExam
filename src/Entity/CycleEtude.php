@@ -4,24 +4,31 @@ namespace App\Entity;
 
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
-use App\Entity\Relation\UserCycleEtude;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Delete;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\GetCollection;
+use App\Entity\Relation\UserCycleEtude;
 use App\Repository\CycleEtudeRepository;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: CycleEtudeRepository::class)]
 #[ApiResource(
-    normalizationContext: ['groups' => ['CycleEtude:ThisClass']],
-    denormalizationContext: ['groups' => ['CycleEtude:ThisClass']],
+    normalizationContext: ['groups' => ['CycleEtude:GET']],
+    denormalizationContext: ['groups' => ['CycleEtude:POST']],
     operations:[
-        new Post(
-            normalizationContext: ['groups' => []],
-            denormalizationContext: ['groups' => ['CycleEtude:ThisClass']],
+        new Post(),
+        new Get(
+            uriTemplate: '/cycle_etudesDetail/{id}',
+            normalizationContext:['groups'=>['CycleEtude:GET','CycleEtude:GETDETAIL']],
         ),
-        new Get(),
+        new Post(),
+        new GetCollection(),
+        new Patch(),
+        new Delete(),
     ],
 
 )]
@@ -30,39 +37,45 @@ class CycleEtude
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['CycleEtude:ThisClass'])]
+    #[Groups(['CycleEtude:GET'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 50)]
-    #[Groups(['CycleEtude:ThisClass'])]
+    #[Groups(['CycleEtude:GET','CycleEtude:POST'])]
     private ?string $titre = null;
 
     #[ORM\Column(length: 30)]
-    #[Groups(['CycleEtude:ThisClass'])]
+    #[Groups(['CycleEtude:GET','CycleEtude:POST'])]
     private ?string $discipline = null;
 
     #[ORM\Column(length: 50)]
-    #[Groups(['CycleEtude:ThisClass'])]
+    #[Groups(['CycleEtude:GET','CycleEtude:POST'])]
     private ?string $diplome = null;
-
-    #[ORM\ManyToOne(inversedBy: 'cycleEtudes')]
-    #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['CycleEtude:ThisClass'])]
-    private ?Etablissment $fkEtablissement = null;
 
     #[ORM\Column]
     // #[Groups(['CycleEtude:ThisClass'])] //🔥par default sera false par constructeur
     private ?bool $Valider = null;
 
+    //🚧 Relation :
+
+    #[ORM\ManyToOne(inversedBy: 'cycleEtudes')]
+    #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['CycleEtude:GET','CycleEtude:POST'])]
+    private ?Etablissment $fkEtablissement = null;
+    
+
+
     #[ORM\OneToMany(mappedBy: 'fkCycleEtude', targetEntity: UserCycleEtude::class)]
+    #[Groups(['CycleEtude:GETDETAIL'])]
     private Collection $userCycleEtudes;
 
     #[ORM\OneToMany(mappedBy: 'cycleEtude', targetEntity: Formation::class)]
+    #[Groups(['CycleEtude:GETDETAIL'])]
     private Collection $formations;
 
     public function __construct()
     {
-        //valeur par default :
+        //🔥valeur par default :
         $this->Valider=false;
         $this->userCycleEtudes = new ArrayCollection();
         $this->formations = new ArrayCollection();

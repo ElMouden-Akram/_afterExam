@@ -7,6 +7,7 @@ use ApiPlatform\Metadata\Post;
 
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\GetCollection;
 use Doctrine\Common\Collections\Collection;
 use App\Repository\SecteurActiviteRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -15,15 +16,16 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ORM\Entity(repositoryClass: SecteurActiviteRepository::class)]
 #[ApiResource(
     //👇regle apliquer a tout les oprerations (default):
-    normalizationContext: ['groups' => ['SecteurActivite:ThisClass']],
-    denormalizationContext: ['groups' => ['SecteurActivite:ThisClass']],
+    normalizationContext: ['groups' => ['SecteurActivite:GET']],
+    denormalizationContext: ['groups' => ['SecteurActivite:POST']],
 
     operations:[
+        new Get(),
+        new Post(),
+        new GetCollection(),
         new Get(
-            
-        ),
-        new Post(
-            // denormalizationContext: ['groups' => ['User:ThisClass']],
+            uriTemplate: '/secteur_activitesDetail/{id}',
+            normalizationContext:['groups'=>['SecteurActivite:GET','SecteurActivite:GETDETAIL']],
         ),
     ],
 )]
@@ -32,14 +34,15 @@ class SecteurActivite
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups('SecteurActivite:ThisClass')]
+    #[Groups(['SecteurActivite:GET'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 50)]
-    #[Groups('SecteurActivite:ThisClass')]
+    #[Groups(['SecteurActivite:GET','SecteurActivite:POST','Entreprise:GET'])]
     private ?string $NomDuSecteur = null;
 
     #[ORM\ManyToMany(targetEntity: Entreprise::class, mappedBy: 'fkSecteurActivite')]
+    #[Groups(['SecteurActivite:GETDETAIL'])]
     private Collection $entreprises;
 
     public function __construct()

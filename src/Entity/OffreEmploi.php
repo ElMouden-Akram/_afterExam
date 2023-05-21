@@ -2,35 +2,63 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\ApiResource;
-use App\Repository\OffreEmploiRepository;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Post;
 use Doctrine\DBAL\Types\Types;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Delete;
 use Doctrine\ORM\Mapping as ORM;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\GetCollection;
+use App\Repository\OffreEmploiRepository;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: OffreEmploiRepository::class)]
-#[ApiResource]
+#[ApiResource(
+    normalizationContext: ['groups' => ['OffreEmploi:GET']],
+    denormalizationContext:['groups' => ['OffreEmploi:POST']],
+    operations:[
+        new Get(),
+        new Post(),
+        new GetCollection(),
+        new Patch(),
+        new Delete(),
+        
+        
+    ],
+    
+)]
 class OffreEmploi
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['OffreEmploi:GET'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 50)]
+    #[Groups(['OffreEmploi:POST','OffreEmploi:GET'])]
     private ?string $titre = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Groups(['OffreEmploi:POST','OffreEmploi:GET'])]
     private ?string $description = null;
-
-    #[ORM\ManyToOne(inversedBy: 'offreEmplois')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?User $ajouterPar = null;
-
+    
     #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[Groups(['OffreEmploi:GET'])]
     private ?\DateTimeInterface $dateAjout = null;
 
+    //🚧 Relation :
+
     #[ORM\ManyToOne(inversedBy: 'offreEmplois')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['OffreEmploi:POST','OffreEmploi:GET'])]
+    private ?User $ajouterPar = null;
+
+
+    #[ORM\ManyToOne(inversedBy: 'offreEmplois')]
+    #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['OffreEmploi:POST','OffreEmploi:GET'])]
     private ?Emploi $emploi = null;
 
     public function getId(): ?int
