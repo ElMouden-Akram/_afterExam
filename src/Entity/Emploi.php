@@ -40,19 +40,19 @@ class Emploi
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['Emploi:GET'])]
+    #[Groups(['Emploi:GET','OffreStage:GET:forArticle','OffreEmploi:GET:forArticle'])]
     private ?int $id = null;
     
     #[ORM\Column(length: 255)]
-    #[Groups(['Emploi:GET','Emploi:POST'])]
+    #[Groups(['Emploi:GET','Emploi:POST','OffreStage:GET:forArticle','OffreEmploi:GET:forArticle'])]
     private ?string $titre = null;
     
     #[ORM\Column(type: Types::TEXT)]
-    #[Groups(['Emploi:GET','Emploi:POST'])]
+    #[Groups(['Emploi:GET','Emploi:POST','OffreStage:GET:forArticle','OffreEmploi:GET:forArticle'])]
     private ?string $descriptif = null;
     
     #[ORM\Column(length: 7)]
-    #[Assert\Choice(choices :['stage','emploi'],message:'Please select your type : \'stage\' or \'emploi\'.')]
+    #[Assert\Choice(choices :['stage','fkEmploi'],message:'Please select your type : \'stage\' or \'emploi\'.')]
     #[Groups(['Emploi:GET','Emploi:POST'])]
     private ?string $type = null;
 
@@ -67,15 +67,19 @@ class Emploi
     #[Groups(['Emploi:GETDETAIL'])]
     private Collection $userEmplois;
 
-    #[ORM\OneToMany(mappedBy: 'emploi', targetEntity: OffreEmploi::class, orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'fkEmploi', targetEntity: OffreEmploi::class, orphanRemoval: true)]
     #[Groups(['Emploi:GETDETAIL'])]
     private Collection $offreEmplois;
+
+    #[ORM\OneToMany(mappedBy: 'fkEmploi', targetEntity: OffreStage::class, orphanRemoval: true)]
+    private Collection $offreStages;
 
 
     public function __construct()
     {
         $this->userEmplois = new ArrayCollection();
         $this->offreEmplois = new ArrayCollection();
+        $this->offreStages = new ArrayCollection();
     }
     
     public function getId(): ?int
@@ -161,7 +165,7 @@ class Emploi
     {
         if (!$this->offreEmplois->contains($offreEmploi)) {
             $this->offreEmplois->add($offreEmploi);
-            $offreEmploi->setEmploi($this);
+            $offreEmploi->setFkEmploi($this);
         }
 
         return $this;
@@ -171,8 +175,8 @@ class Emploi
     {
         if ($this->offreEmplois->removeElement($offreEmploi)) {
             // set the owning side to null (unless already changed)
-            if ($offreEmploi->getEmploi() === $this) {
-                $offreEmploi->setEmploi(null);
+            if ($offreEmploi->getFkEmploi() === $this) {
+                $offreEmploi->setFkEmploi(null);
             }
         }
 
@@ -187,6 +191,36 @@ class Emploi
     public function setType(string $type): self
     {
         $this->type = $type;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, OffreStage>
+     */
+    public function getOffreStages(): Collection
+    {
+        return $this->offreStages;
+    }
+
+    public function addOffreStage(OffreStage $offreStage): self
+    {
+        if (!$this->offreStages->contains($offreStage)) {
+            $this->offreStages->add($offreStage);
+            $offreStage->setFkEmploi($this);
+        }
+
+        return $this;
+    }
+
+    public function removeOffreStage(OffreStage $offreStage): self
+    {
+        if ($this->offreStages->removeElement($offreStage)) {
+            // set the owning side to null (unless already changed)
+            if ($offreStage->getFkEmploi() === $this) {
+                $offreStage->setFkEmploi(null);
+            }
+        }
 
         return $this;
     }

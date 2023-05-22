@@ -43,7 +43,7 @@ use Symfony\Component\Serializer\Annotation\SerializedName;
                 uriTemplate: '/me',
                 controller: MeController::class,
                 read:false,
-                normalizationContext:['groups'=>['User:GET']],
+                normalizationContext:['groups'=>['User:GET','User:GET:me']],
 //                security: "is_granted('ROLE_ETUDIANT')"
             ),
         new GetCollection(),
@@ -54,7 +54,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['User:GET'])]
+    #[Groups(['User:GET','OffreStage:GET:forArticle','OffreEmploi:GET:forArticle'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 30, unique: true)]
@@ -75,11 +75,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $plainPassword = null;
 
     #[ORM\Column(length: 40)]
-    #[Groups(['User:GET','User:POST','OffreStage:ThisClass'])]
+    #[Groups(['User:GET','User:POST','OffreStage:GET:forArticle','OffreEmploi:GET:forArticle'])]
     private ?string $firstName = null;
 
     #[ORM\Column(length: 40)]
-    #[Groups(['User:GET','User:POST','OffreStage:ThisClass'])]
+    #[Groups(['User:GET','User:POST','OffreStage:GET:forArticle','OffreEmploi:GET:forArticle'])]
     private ?string $lastName = null;
 
     #[ORM\Column(length: 15, nullable: true)]
@@ -110,24 +110,27 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 // 🚧 attribut bellow for 'relation' 🚧
 
     #[ORM\OneToMany(mappedBy: 'ajouterPar', targetEntity: OffreStage::class)]
-    #[Groups(['User:relation:GET'])]
+    #[Groups(['User:relation:GET','User:GET:me'])]
     private Collection $offreStages;
     
     #[ORM\OneToMany(mappedBy: 'ajouterPar', targetEntity: OffreEmploi::class)]
+    #[Groups(['User:GET:me'])]
     private Collection $offreEmplois;
     
     #[ORM\OneToMany(mappedBy: 'ajouterPar', targetEntity: Formation::class, orphanRemoval: true)]
+    #[Groups(['User:GET:me'])]
     private Collection $formations;
 
     #[ORM\OneToMany(mappedBy: 'fkUser', targetEntity: UserCycleEtude::class)]
-    #[Groups(['User:relation:ToRead'])]
+    #[Groups(['User:GET:me'])]
     private Collection $userCycleEtudes;
 
-    #[Groups(['User:relation:ToRead'])]
     #[ORM\OneToMany(mappedBy: 'fkUser', targetEntity: UserEmploi::class, orphanRemoval: true)]
+    #[Groups(['User:GET:me'])]
     private Collection $userEmplois;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['User:GET','User:POST'])]
     private ?string $picture = null;
 
     public function __construct()

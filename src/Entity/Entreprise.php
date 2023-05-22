@@ -34,11 +34,11 @@ class Entreprise
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['Entreprise:GET'])]
+    #[Groups(['Entreprise:GET','OffreStage:GET:forArticle'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 50)]
-    #[Groups(['Entreprise:GET','Entreprise:POST'])]
+    #[Groups(['Entreprise:GET','Entreprise:POST','OffreStage:GET:forArticle'])]
     private ?string $NomEntreprise = null;
 
     #[ORM\Column(length: 30)]
@@ -79,15 +79,14 @@ class Entreprise
     #[Groups(['Entreprise:GETDETAIL'])]
     private Collection $emplois;
 
-    #[ORM\OneToMany(mappedBy: 'entreprise', targetEntity: OffreStage::class, orphanRemoval: true)]
-    #[Groups(['Entreprise:GETDETAIL'])]
-    private Collection $offreStages;
+    // #[ORM\OneToMany(mappedBy: 'fkEntreprise', targetEntity: OffreStage::class, orphanRemoval: true)]
+    // #[Groups(['Entreprise:GETDETAIL'])]
+    // private Collection $offreStages;
 
     public function __construct()
     {
         $this->fkSecteurActivite = new ArrayCollection();
         $this->emplois = new ArrayCollection();
-        $this->offreStages = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -245,33 +244,4 @@ class Entreprise
         return $this;
     }
 
-    /**
-     * @return Collection<int, OffreStage>
-     */
-    public function getOffreStages(): Collection
-    {
-        return $this->offreStages;
-    }
-
-    public function addOffreStage(OffreStage $offreStage): self
-    {
-        if (!$this->offreStages->contains($offreStage)) {
-            $this->offreStages->add($offreStage);
-            $offreStage->setEntreprise($this);
-        }
-
-        return $this;
-    }
-
-    public function removeOffreStage(OffreStage $offreStage): self
-    {
-        if ($this->offreStages->removeElement($offreStage)) {
-            // set the owning side to null (unless already changed)
-            if ($offreStage->getEntreprise() === $this) {
-                $offreStage->setEntreprise(null);
-            }
-        }
-
-        return $this;
-    }
 }

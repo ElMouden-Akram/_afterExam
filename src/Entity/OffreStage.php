@@ -5,7 +5,6 @@ namespace App\Entity;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
 use Doctrine\DBAL\Types\Types;
-
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Delete;
 use Doctrine\ORM\Mapping as ORM;
@@ -13,6 +12,8 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
 use App\Repository\OffreStageRepository;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Entity(repositoryClass: OffreStageRepository::class)]
 #[ApiResource(
@@ -23,15 +24,20 @@ use Symfony\Component\Serializer\Annotation\Groups;
             normalizationContext: ['groups' => ['OffreStage:GET']],
             denormalizationContext:['groups' => ['OffreStage:POST']],
         ),
+        new Get(
+            uriTemplate: '/offre_stagesArticle',
+            normalizationContext: ['groups' => ['OffreStage:GET','OffreStage:GET:forArticle']],
+        ),
         new Post(),
         new GetCollection(),
         new Patch(),
-        new Delete(),
-        
-        
+        new Delete(),     
     ],
     
 )]
+#[Assert\Expression('this.FkEmploiType() == "stage"',message: 'Cette emploi a attribut type <> "stage" !')]
+//👇 un utser peut ecrire un article sur une emploi :
+#[UniqueEntity(fields:["ajouterPar","fkEmploi"], message:"Vous avez deja saisi un post sur cette article.")]
 class OffreStage
 {
     #[ORM\Id]
@@ -40,30 +46,31 @@ class OffreStage
     #[Groups(['OffreStage:GET'])]
     private ?int $id = null;
 
-    #[ORM\Column(length: 30)]
-    #[Groups(['OffreStage:GET','OffreStage:POST'])]
-    private ?string $titre = null;
-
     #[ORM\Column(type: Types::TEXT)]
     #[Groups(['OffreStage:GET','OffreStage:POST'])]
     private ?string $description = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
-    #[Groups(['OffreStage:GET'])]  // remarque : cette attribut est initialiser au constructeur a la creation de l'object!
+    #[Groups(['OffreStage:GET','OffreStage:POST'])]  // remarque : cette attribut est initialiser au constructeur a la creation de l'object!
     private ?\DateTimeInterface $dateAjout = null;
     
     //🚧 Relation :
 
     #[ORM\ManyToOne(inversedBy: 'offreStages')]
     #[ORM\JoinColumn(nullable: false)]    
-    #[Groups(['OffreStage:GET','OffreStage:POST'])]
+    #[Groups(['OffreStage:GET','OffreStage:POST','OffreStage:GET:forArticle'])]
     private ?User $ajouterPar = null;
-    
 
     #[ORM\ManyToOne(inversedBy: 'offreStages')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['OffreStage:GET','OffreStage:POST'])]
-    private ?Entreprise $entreprise = null;
+    #[Groups(['OffreStage:GET','OffreStage:POST','OffreStage:GET:forArticle'])]
+    private ?Emploi $fkEmploi = null;
+    
+
+    // #[ORM\ManyToOne(inversedBy: 'offreStages')]
+    // #[ORM\JoinColumn(nullable: false)]
+    // #[Groups(['OffreStage:GET','OffreStage:POST','OffreStage:GET:forArticle'])]
+    // private ?Entreprise $fkEntreprise = null;
 
     public function __construct()
     {
@@ -73,18 +80,6 @@ class OffreStage
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getTitre(): ?string
-    {
-        return $this->titre;
-    }
-
-    public function setTitre(string $titre): self
-    {
-        $this->titre = $titre;
-
-        return $this;
     }
 
     public function getDescription(): ?string
@@ -123,14 +118,31 @@ class OffreStage
         return $this;
     }
 
-    public function getEntreprise(): ?Entreprise
-    {
-        return $this->entreprise;
+    //Pour la assert constraint :
+    public function FkEmploiType():string{
+        return $this->fkEmploi->getType();
     }
 
-    public function setEntreprise(?Entreprise $entreprise): self
+    // public function getFkEntreprise(): ?Entreprise
+    // {
+    //     return $this->fkEntreprise;
+    // }
+
+    // public function setFkEntreprise(?Entreprise $entreprise): self
+    // {
+    //     $this->fkEntreprise = $entreprise;
+
+    //     return $this;
+    // }
+
+    public function getFkEmploi(): ?Emploi
     {
-        $this->entreprise = $entreprise;
+        return $this->fkEmploi;
+    }
+
+    public function setFkEmploi(?Emploi $fkEmploi): self
+    {
+        $this->fkEmploi = $fkEmploi;
 
         return $this;
     }

@@ -5,9 +5,13 @@ features added :
 
 
 
-update :
+✔update :
 + 95% is good (ba9i user's end point + formation i think)
-next :
-+ for Oussama's idea : offrestage titre suprimer → sera titre de experiance + modifie end point de tell facon
-qu'il retourne titre de emploi dans offre stage
++ les offres maintenant accept que des titres pre-difinie ...
++ 98 % done . Reste que des modofication simple sur entity User selon le besoins de front-end.
++ !! reste a ajouter l'atribut valide for all users! (seems complicated)
+
+🧰next :
++ admin stuff.
++ need to add description atribut to cycleetude ??! bach tweli like others?!
 

@@ -22,6 +22,10 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
     denormalizationContext:['groups' => ['OffreEmploi:POST']],
     operations:[
         new Get(),
+        new Get(
+            uriTemplate: '/offre_emploisArticle',
+            normalizationContext: ['groups' => ['OffreEmploi:GET','OffreEmploi:GET:forArticle']],
+        ),
         new Post(),
         new GetCollection(),
         new Patch(),
@@ -31,8 +35,8 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 )]
 //👇verifier si emploi->type ='emploi' :
 #[Assert\Expression('this.emploiType() == "emploi"',message: 'Cette emploi a un attribut type <> "emploi" !')]
-//👇
-#[UniqueEntity(fields:["ajouterPar","emploi"], message:"Vous avez deja saisi un post sur cette article.")]
+//👇 un utser peut ecrire un article sur une emploi :
+#[UniqueEntity(fields:["ajouterPar","fkEmploi"], message:"Vous avez deja saisi un post sur cette article.")]
 class OffreEmploi
 {
     #[ORM\Id]
@@ -41,9 +45,9 @@ class OffreEmploi
     #[Groups(['OffreEmploi:GET'])]
     private ?int $id = null;
 
-    #[ORM\Column(length: 50)]
-    #[Groups(['OffreEmploi:POST','OffreEmploi:GET'])]
-    private ?string $titre = null;
+    // #[ORM\Column(length: 50)]
+    // #[Groups(['OffreEmploi:POST','OffreEmploi:GET'])]
+    // private ?string $titre = null;
 
     #[ORM\Column(type: Types::TEXT)]
     #[Groups(['OffreEmploi:POST','OffreEmploi:GET'])]
@@ -57,14 +61,14 @@ class OffreEmploi
 
     #[ORM\ManyToOne(inversedBy: 'offreEmplois')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['OffreEmploi:POST','OffreEmploi:GET'])]
+    #[Groups(['OffreEmploi:POST','OffreEmploi:GET','OffreEmploi:GET:forArticle'])]
     private ?User $ajouterPar = null;
 
 
     #[ORM\ManyToOne(inversedBy: 'offreEmplois')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['OffreEmploi:POST','OffreEmploi:GET'])]
-    private ?Emploi $emploi = null;
+    #[Groups(['OffreEmploi:POST','OffreEmploi:GET','OffreEmploi:GET:forArticle'])]
+    private ?Emploi $fkEmploi = null;
 
     public function __construct()
     {
@@ -76,17 +80,17 @@ class OffreEmploi
         return $this->id;
     }
 
-    public function getTitre(): ?string
-    {
-        return $this->titre;
-    }
+    // public function getTitre(): ?string
+    // {
+    //     return $this->titre;
+    // }
 
-    public function setTitre(string $titre): self
-    {
-        $this->titre = $titre;
+    // public function setTitre(string $titre): self
+    // {
+    //     $this->titre = $titre;
 
-        return $this;
-    }
+    //     return $this;
+    // }
 
     public function getDescription(): ?string
     {
@@ -124,20 +128,20 @@ class OffreEmploi
         return $this;
     }
 
-    public function getEmploi(): ?Emploi
+    public function getFkEmploi(): ?Emploi
     {
-        return $this->emploi;
+        return $this->fkEmploi;
     }
 
-    public function setEmploi(?Emploi $emploi): self
+    public function setFkEmploi(?Emploi $emploi): self
     {
-        $this->emploi = $emploi;
+        $this->fkEmploi = $emploi;
 
         return $this;
     }
 
     public function emploiType():string
     {
-        return $this->emploi->getType();
+        return $this->fkEmploi->getType();
     }
 }

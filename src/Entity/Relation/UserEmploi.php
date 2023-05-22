@@ -62,6 +62,7 @@ class UserEmploi
         return $this;
     }
 
+    //Pour la assert constraint :
     public function FkEmploiType():string{
         return $this->fkEmploi->getType();
     }
