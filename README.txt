@@ -13,5 +13,6 @@ features added :
 
 🧰next :
 + admin stuff.
++ need "security" stuff + "validation"
 + need to add description atribut to cycleetude ??! bach tweli like others?!
 
