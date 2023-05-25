@@ -224,4 +224,9 @@ class Emploi
 
         return $this;
     }
+
+    //for easyAdmin:
+        public function __toString(){
+            return $this->titre;
+        }
 }

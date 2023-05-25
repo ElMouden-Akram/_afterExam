@@ -8,9 +8,12 @@ use Doctrine\DBAL\Types\Types;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Delete;
 use Doctrine\ORM\Mapping as ORM;
+use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
 use App\Repository\OffreStageRepository;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Doctrine\Orm\Filter\BooleanFilter;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
@@ -33,11 +36,12 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
         new Patch(),
         new Delete(),     
     ],
-    
 )]
+
 #[Assert\Expression('this.FkEmploiType() == "stage"',message: 'Cette emploi a attribut type <> "stage" !')]
 //👇 un utser peut ecrire un article sur une emploi :
 #[UniqueEntity(fields:["ajouterPar","fkEmploi"], message:"Vous avez deja saisi un post sur cette article.")]
+#[ApiFilter(SearchFilter::class, properties: ['fkEmploi.titre' => 'partial'])]
 class OffreStage
 {
     #[ORM\Id]
@@ -65,6 +69,10 @@ class OffreStage
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(['OffreStage:GET','OffreStage:POST','OffreStage:GET:forArticle'])]
     private ?Emploi $fkEmploi = null;
+
+    #[ORM\Column]
+    #[ApiFilter(BooleanFilter::class)]
+    private ?bool $validate = null;
     
 
     // #[ORM\ManyToOne(inversedBy: 'offreStages')]
@@ -74,6 +82,7 @@ class OffreStage
 
     public function __construct()
     {
+        $this->validate = false ;
         $this->dateAjout = new \DateTimeImmutable();
     }
 
@@ -146,4 +155,17 @@ class OffreStage
 
         return $this;
     }
+
+    public function isValidate(): ?bool
+    {
+        return $this->validate;
+    }
+
+    // public function setValidate(bool $validate): self
+    // {
+    //     $this->validate = $validate;
+
+    //     return $this;
+    // }
+
 }

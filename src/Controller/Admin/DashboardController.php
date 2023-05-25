@@ -55,8 +55,8 @@ class DashboardController extends AbstractDashboardController
         // yield MenuItem::linkToCrud('The Label', 'fas fa-list', EntityClass::class);
         yield MenuItem::linkToDashboard('Statistique', 'fas fa-chart-pie');
         yield MenuItem::linkToCrud('Les utilisateurs', 'fas fa-users', User::class);
-        yield MenuItem::linkToCrud('Offre stage', 'fas fa-list', OffreEmploi::class);
-        yield MenuItem::linkToCrud('Offre emploi', 'fas fa-list', OffreStage::class);
+        yield MenuItem::linkToCrud('Offre emploi', 'fas fa-list', OffreEmploi::class);
+        yield MenuItem::linkToCrud('Offre stage', 'fas fa-list', OffreStage::class);
         yield MenuItem::linkToCrud('Formation', 'fas fa-list', Formation::class);
         yield MenuItem::linkToUrl('Page d\'accueil ', 'fas fa-home', $this->generateUrl('app_app'));
         // yield MenuItem::linkToCrud('Les utilisateurs', 'fas fa-user', User::class);

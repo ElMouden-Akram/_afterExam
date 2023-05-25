@@ -43,7 +43,7 @@ use Symfony\Component\Serializer\Annotation\SerializedName;
                 uriTemplate: '/me',
                 controller: MeController::class,
                 read:false,
-                normalizationContext:['groups'=>['User:GET','User:GET:me']],
+                normalizationContext:['groups'=>['User:GET','User:GET:me'/*,'OffreStage:GET:forArticle'*/]],
 //                security: "is_granted('ROLE_ETUDIANT')"
             ),
         new GetCollection(),
@@ -480,4 +480,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         return $this->plainPassword;
     }
+    
+    //for easyAdmin:
+        public function __toString(){
+            return $this->firstName." ".$this->lastName;
+        }
 }
