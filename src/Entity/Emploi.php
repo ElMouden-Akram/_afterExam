@@ -40,15 +40,15 @@ class Emploi
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['Emploi:GET','OffreStage:GET:forArticle','OffreEmploi:GET:forArticle'])]
+    #[Groups(['Emploi:GET','OffreStage:GET','OffreEmploi:GET'])]
     private ?int $id = null;
     
     #[ORM\Column(length: 255)]
-    #[Groups(['Emploi:GET','Emploi:POST','OffreStage:GET:forArticle','OffreEmploi:GET:forArticle'])]
+    #[Groups(['Emploi:GET','Emploi:POST','OffreStage:GET','OffreEmploi:GET'])]
     private ?string $titre = null;
     
     #[ORM\Column(type: Types::TEXT)]
-    #[Groups(['Emploi:GET','Emploi:POST','OffreStage:GET:forArticle','OffreEmploi:GET:forArticle'])]
+    #[Groups(['Emploi:GET','Emploi:POST','OffreStage:GET','OffreEmploi:GET'])]
     private ?string $descriptif = null;
     
     #[ORM\Column(length: 7)]

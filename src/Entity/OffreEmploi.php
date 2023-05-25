@@ -22,10 +22,10 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
     denormalizationContext:['groups' => ['OffreEmploi:POST']],
     operations:[
         new Get(),
-        new Get(
-            uriTemplate: '/offre_emploisArticle',
-            normalizationContext: ['groups' => ['OffreEmploi:GET','OffreEmploi:GET:forArticle']],
-        ),
+        // new Get(
+        //     uriTemplate: '/offre_emploisArticle',
+        //     normalizationContext: ['groups' => ['OffreEmploi:GET']],
+        // ),
         new Post(),
         new GetCollection(),
         new Patch(),
@@ -61,14 +61,17 @@ class OffreEmploi
 
     #[ORM\ManyToOne(inversedBy: 'offreEmplois')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['OffreEmploi:POST','OffreEmploi:GET','OffreEmploi:GET:forArticle'])]
+    #[Groups(['OffreEmploi:POST','OffreEmploi:GET'])]
     private ?User $ajouterPar = null;
 
 
     #[ORM\ManyToOne(inversedBy: 'offreEmplois')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['OffreEmploi:POST','OffreEmploi:GET','OffreEmploi:GET:forArticle'])]
+    #[Groups(['OffreEmploi:POST','OffreEmploi:GET'])]
     private ?Emploi $fkEmploi = null;
+
+    #[ORM\Column]
+    private ?bool $validate = null;
 
     public function __construct()
     {
@@ -143,5 +146,17 @@ class OffreEmploi
     public function emploiType():string
     {
         return $this->fkEmploi->getType();
+    }
+
+    public function isValidate(): ?bool
+    {
+        return $this->validate;
+    }
+
+    public function setValidate(bool $validate): self
+    {
+        $this->validate = $validate;
+
+        return $this;
     }
 }

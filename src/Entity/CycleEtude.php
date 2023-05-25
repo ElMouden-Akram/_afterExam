@@ -37,11 +37,11 @@ class CycleEtude
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['CycleEtude:GET'])]
+    #[Groups(['CycleEtude:GET','Formation:GET'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 50)]
-    #[Groups(['CycleEtude:GET','CycleEtude:POST'])]
+    #[Groups(['CycleEtude:GET','CycleEtude:POST','Formation:GET'])]
     private ?string $titre = null;
 
     #[ORM\Column(length: 30)]
@@ -204,5 +204,10 @@ class CycleEtude
         }
 
         return $this;
+    }
+
+    //for easyAdmin:
+    public function __toString(){
+        return $this->titre;
     }
 }

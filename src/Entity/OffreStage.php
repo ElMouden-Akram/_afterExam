@@ -27,10 +27,10 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
             normalizationContext: ['groups' => ['OffreStage:GET']],
             denormalizationContext:['groups' => ['OffreStage:POST']],
         ),
-        new Get(
-            uriTemplate: '/offre_stagesArticle',
-            normalizationContext: ['groups' => ['OffreStage:GET','OffreStage:GET:forArticle']],
-        ),
+        // new Get(
+        //     uriTemplate: '/offre_stagesArticle',
+        //     normalizationContext: ['groups' => ['OffreStage:GET']],
+        // ),
         new Post(),
         new GetCollection(),
         new Patch(),
@@ -62,12 +62,12 @@ class OffreStage
 
     #[ORM\ManyToOne(inversedBy: 'offreStages')]
     #[ORM\JoinColumn(nullable: false)]    
-    #[Groups(['OffreStage:GET','OffreStage:POST','OffreStage:GET:forArticle'])]
+    #[Groups(['OffreStage:GET','OffreStage:POST'/*,'OffreStage:GET:forArticle'*/])]
     private ?User $ajouterPar = null;
 
     #[ORM\ManyToOne(inversedBy: 'offreStages')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['OffreStage:GET','OffreStage:POST','OffreStage:GET:forArticle'])]
+    #[Groups(['OffreStage:GET','OffreStage:POST'/*,'OffreStage:GET:forArticle'*/])]
     private ?Emploi $fkEmploi = null;
 
     #[ORM\Column]
@@ -161,11 +161,11 @@ class OffreStage
         return $this->validate;
     }
 
-    // public function setValidate(bool $validate): self
-    // {
-    //     $this->validate = $validate;
+    public function setValidate(bool $validate): self
+    {
+        $this->validate = $validate;
 
-    //     return $this;
-    // }
+        return $this;
+    }
 
 }

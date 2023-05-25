@@ -24,7 +24,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
         ),
         new Get(
             uriTemplate: '/offre_stagesArticle',
-            normalizationContext: ['groups' => ['Formation:GET','Formation:GET:forArticle']],
+            normalizationContext: ['groups' => ['Formation:GET']],
         ),
         new Post(),
         new GetCollection(),
@@ -40,10 +40,6 @@ class Formation
     #[ORM\Column]
     #[Groups(['Formation:GET'])]
     private ?int $id = null;
-
-    #[ORM\Column(length: 50)]
-    #[Groups(['Formation:GET'])]
-    private ?string $titre = null;
 
     #[ORM\Column(type: Types::TEXT)]
     #[Groups(['Formation:GET'])]
@@ -62,27 +58,19 @@ class Formation
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(['Formation:GET'])]
     private ?CycleEtude $cycleEtude = null;
+
+    #[ORM\Column]
+    private ?bool $validate = null;
     
     public function __construct()
     {
+        $this->validate = false ;
         $this->dateAjout = new \DateTimeImmutable();
     }
 
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getTitre(): ?string
-    {
-        return $this->titre;
-    }
-
-    public function setTitre(string $titre): self
-    {
-        $this->titre = $titre;
-
-        return $this;
     }
 
     public function getDescription(): ?string
@@ -129,6 +117,18 @@ class Formation
     public function setCycleEtude(?CycleEtude $cycleEtude): self
     {
         $this->cycleEtude = $cycleEtude;
+
+        return $this;
+    }
+
+    public function isValidate(): ?bool
+    {
+        return $this->validate;
+    }
+
+    public function setValidate(bool $validate): self
+    {
+        $this->validate = $validate;
 
         return $this;
     }
