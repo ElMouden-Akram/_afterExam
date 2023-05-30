@@ -8,9 +8,12 @@ use Doctrine\DBAL\Types\Types;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Delete;
 use Doctrine\ORM\Mapping as ORM;
+use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
 use App\Repository\OffreEmploiRepository;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Doctrine\Orm\Filter\BooleanFilter;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
@@ -37,6 +40,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 #[Assert\Expression('this.emploiType() == "emploi"',message: 'Cette emploi a un attribut type <> "emploi" !')]
 //👇 un utser peut ecrire un article sur une emploi :
 #[UniqueEntity(fields:["ajouterPar","fkEmploi"], message:"Vous avez deja saisi un post sur cette article.")]
+#[ApiFilter(SearchFilter::class, properties: ['fkEmploi.titre' => 'partial','ajouterPar.lastName' => 'partial','fkEmploi.fkEntreprise.NomEntreprise' => 'partial'])]
 class OffreEmploi
 {
     #[ORM\Id]
@@ -71,6 +75,7 @@ class OffreEmploi
     private ?Emploi $fkEmploi = null;
 
     #[ORM\Column]
+    #[ApiFilter(BooleanFilter::class)]
     private ?bool $validate = null;
 
     public function __construct()

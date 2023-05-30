@@ -41,7 +41,8 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 #[Assert\Expression('this.FkEmploiType() == "stage"',message: 'Cette emploi a attribut type <> "stage" !')]
 //👇 un utser peut ecrire un article sur une emploi :
 #[UniqueEntity(fields:["ajouterPar","fkEmploi"], message:"Vous avez deja saisi un post sur cette article.")]
-#[ApiFilter(SearchFilter::class, properties: ['fkEmploi.titre' => 'partial'])]
+#[ApiFilter(SearchFilter::class, properties: ['fkEmploi.titre' => 'partial','ajouterPar.lastName' => 'partial','fkEmploi.fkEntreprise.NomEntreprise' => 'partial'])]
+#[ApiResource(paginationItemsPerPage: 0)]
 class OffreStage
 {
     #[ORM\Id]

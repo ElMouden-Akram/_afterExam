@@ -8,8 +8,11 @@ use Doctrine\DBAL\Types\Types;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Delete;
 use Doctrine\ORM\Mapping as ORM;
+use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Doctrine\Orm\Filter\BooleanFilter;
 use App\Repository\FormationRepository;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -33,6 +36,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
     ],
     
 )]
+#[ApiFilter(SearchFilter::class, properties: ['cycleEtude.titre' => 'partial','ajouterPar.lastName' => 'partial','cycleEtude.fkEtablissement.nomEtablissement' => 'partial'])]
 class Formation
 {
     #[ORM\Id]
