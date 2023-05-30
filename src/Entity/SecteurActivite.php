@@ -38,7 +38,7 @@ class SecteurActivite
     private ?int $id = null;
 
     #[ORM\Column(length: 50)]
-    #[Groups(['SecteurActivite:GET','SecteurActivite:POST','Entreprise:GET'])]
+    #[Groups(['SecteurActivite:GET','SecteurActivite:POST','Entreprise:GET','OffreStage:GET','OffreEmploi:GET'])]
     private ?string $NomDuSecteur = null;
 
     #[ORM\ManyToMany(targetEntity: Entreprise::class, mappedBy: 'fkSecteurActivite')]

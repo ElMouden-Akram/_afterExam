@@ -34,11 +34,11 @@ class Entreprise
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['Entreprise:GET','OffreStage:GET:forArticle'])]
+    #[Groups(['Entreprise:GET','OffreStage:GET','OffreEmploi:GET'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 50)]
-    #[Groups(['Entreprise:GET','Entreprise:POST','OffreStage:GET:forArticle'])]
+    #[Groups(['Entreprise:GET','Entreprise:POST','OffreStage:GET','OffreEmploi:GET'])]
     private ?string $NomEntreprise = null;
 
     #[ORM\Column(length: 30)]
@@ -62,7 +62,7 @@ class Entreprise
     private ?string $telephone = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['Entreprise:GET','Entreprise:POST'])]
+    #[Groups(['Entreprise:GET','Entreprise:POST','OffreStage:GET','OffreEmploi:GET'])]
     private ?string $logoEntreprise = null;
 
     #[ORM\Column(type: Types::TEXT)]
@@ -72,7 +72,7 @@ class Entreprise
     //🚧 Relation :
 
     #[ORM\ManyToMany(targetEntity: SecteurActivite::class, inversedBy: 'entreprises')]
-    #[Groups(['Entreprise:GET','Entreprise:POST'])]
+    #[Groups(['Entreprise:GET','Entreprise:POST','OffreStage:GET','OffreEmploi:GET'])]
     private Collection $fkSecteurActivite;
 
     #[ORM\OneToMany(mappedBy: 'fkEntreprise', targetEntity: Emploi::class, orphanRemoval: true)]

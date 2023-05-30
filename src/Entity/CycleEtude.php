@@ -45,11 +45,11 @@ class CycleEtude
     private ?string $titre = null;
 
     #[ORM\Column(length: 30)]
-    #[Groups(['CycleEtude:GET','CycleEtude:POST'])]
+    #[Groups(['CycleEtude:GET','CycleEtude:POST','Formation:GET'])]
     private ?string $discipline = null;
 
     #[ORM\Column(length: 50)]
-    #[Groups(['CycleEtude:GET','CycleEtude:POST'])]
+    #[Groups(['CycleEtude:GET','CycleEtude:POST','Formation:GET'])]
     private ?string $diplome = null;
 
     #[ORM\Column]
@@ -60,7 +60,7 @@ class CycleEtude
 
     #[ORM\ManyToOne(inversedBy: 'cycleEtudes')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['CycleEtude:GET','CycleEtude:POST'])]
+    #[Groups(['CycleEtude:GET','CycleEtude:POST','Formation:GET'])]
     private ?Etablissment $fkEtablissement = null;
     
 

@@ -31,27 +31,27 @@ class Etablissment
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['Etablissement:GET','Etablissement:GETDETAIL'])]
+    #[Groups(['Etablissement:GET','Etablissement:GETDETAIL','Formation:GET'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 50)]
-    #[Groups(['Etablissement:POST','Etablissement:GET','Etablissement:GETDETAIL'])]
+    #[Groups(['Etablissement:POST','Etablissement:GET','Etablissement:GETDETAIL','Formation:GET'])]
     private ?string $nomEtablissement = null;
 
     #[ORM\Column(length: 50, nullable: true)]
-    #[Groups(['Etablissement:POST','Etablissement:GET','Etablissement:GETDETAIL'])]
+    #[Groups(['Etablissement:POST','Etablissement:GET','Etablissement:GETDETAIL','Formation:GET'])]
     private ?string $nomUniversite = null;
 
     #[ORM\Column(length: 20)]
-    #[Groups(['Etablissement:POST','Etablissement:GET','Etablissement:GETDETAIL'])]
+    #[Groups(['Etablissement:POST','Etablissement:GET','Etablissement:GETDETAIL','Formation:GET'])]
     private ?string $region = null;
 
     #[ORM\Column(length: 50)]
-    #[Groups(['Etablissement:POST','Etablissement:GET','Etablissement:GETDETAIL'])]
+    #[Groups(['Etablissement:POST','Etablissement:GET','Etablissement:GETDETAIL','Formation:GET'])]
     private ?string $ville = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['Etablissement:POST','Etablissement:GET','Etablissement:GETDETAIL'])]
+    #[Groups(['Etablissement:POST','Etablissement:GET','Etablissement:GETDETAIL','Formation:GET'])]
     private ?string $logoUniversite = null;
 
     #[ORM\OneToMany(mappedBy: 'fkEtablissement', targetEntity: CycleEtude::class)]

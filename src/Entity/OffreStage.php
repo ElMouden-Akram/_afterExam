@@ -42,7 +42,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 //👇 un utser peut ecrire un article sur une emploi :
 #[UniqueEntity(fields:["ajouterPar","fkEmploi"], message:"Vous avez deja saisi un post sur cette article.")]
 #[ApiFilter(SearchFilter::class, properties: ['fkEmploi.titre' => 'partial','ajouterPar.lastName' => 'partial','fkEmploi.fkEntreprise.NomEntreprise' => 'partial'])]
-#[ApiResource(paginationItemsPerPage: 0)]
+// #[ApiResource(paginationItemsPerPage: 0)]
 class OffreStage
 {
     #[ORM\Id]

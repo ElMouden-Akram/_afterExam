@@ -64,6 +64,7 @@ class Formation
     private ?CycleEtude $cycleEtude = null;
 
     #[ORM\Column]
+    #[ApiFilter(BooleanFilter::class)]
     private ?bool $validate = null;
     
     public function __construct()

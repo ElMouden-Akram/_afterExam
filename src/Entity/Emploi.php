@@ -60,11 +60,11 @@ class Emploi
 
     #[ORM\ManyToOne(inversedBy: 'emplois')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['Emploi:GET','Emploi:POST'])]
+    #[Groups(['Emploi:GET','Emploi:POST','OffreStage:GET','OffreEmploi:GET'])]
     private ?Entreprise $fkEntreprise = null;
 
     #[ORM\OneToMany(mappedBy: 'fkEmploi', targetEntity: UserEmploi::class, orphanRemoval: true)]
-    #[Groups(['Emploi:GETDETAIL'])]
+    #[Groups(['Emploi:GETDETAIL','OffreStage:GET','OffreEmploi:GET'])]
     private Collection $userEmplois;
 
     #[ORM\OneToMany(mappedBy: 'fkEmploi', targetEntity: OffreEmploi::class, orphanRemoval: true)]
